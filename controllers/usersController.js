@@ -47,6 +47,7 @@ const register = asyncHandler( async (req, res) => {
     }    
 })
 const data = asyncHandler( async (req, res) => {
+    res.status(200).json(req.user)
 })
 const generarToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {

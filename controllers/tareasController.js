@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Tarea = require('../models/tareaModel.js');
 const getTareas = asyncHandler( async (req, res) => {
-    const tareas = await Tarea.find();
+    const tareas = await Tarea.find({user: req.user.id});
     res.status(200).json(tareas);
 })
 const crearTareas = asyncHandler( async (req, res) => {
@@ -11,7 +11,8 @@ const crearTareas = asyncHandler( async (req, res) => {
 //        .json({message: 'No hay texto'}); //
     }
     const tarea = await Tarea.create({
-        texto: req.body.texto
+        texto: req.body.texto,
+        user: req.user.id
     });
     res.status(201).json(tarea);
 })
@@ -21,12 +22,14 @@ const updateTareas = asyncHandler( async (req, res) => {
         res.status(404)
         throw new Error('Tarea not found')
     }
-    const tareaUpdated = await Tarea.findByIdAndUpdate(req.params.id, req.body, {new: true});
-    if(!tareaUpdated){
-        res.status(404)
-        throw new Error('Tarea not found')
+
+    if(tarea.user.toString()!== req.user.id){
+        res.status(401)
+        throw new Error('No autorizado')
+    } else {
+        const tareaUpdated = await Tarea.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        res.status(200).json(tareaUpdated)
     }
-    res.status(200).json(tareaUpdated)
 })
 const deleteTareas = asyncHandler( async (req, res) => {
     const tarea = await Tarea.findById(req.params.id);
@@ -34,9 +37,13 @@ const deleteTareas = asyncHandler( async (req, res) => {
         res.status(404)
         throw new Error('Tarea not found')
     }
-    const tareaEliminada = await Tarea.findOneAndDelete(req.params.id)
-    res.status(200).json(tareaEliminada)
-//    res.status(200).json({message: `Eliminar la tarea con el id: ${req.params.id}`});
+    if(tarea.user.toString()!== req.user.id){
+        res.status(401)
+        throw new Error('No autorizado')
+    } else {
+        await Tarea.deleteOne()
+        res.status(200).json({id: req.params.id})
+    }
 })
 module.exports = {
     getTareas,
