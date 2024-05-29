@@ -12,5 +12,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/api/tareas', require('../routes/tareasRoutes'));
+app.use('/api/users', require('../routes/usersRoutes'));
 app.use(errorHandler);
 app.listen(port, () => console.log(`listening en ${port}`));
