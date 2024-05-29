@@ -53,9 +53,15 @@ const generarToken = (id) => {
         expiresIn: '30d'
     })
 }
-
+const logout = asyncHandler( async (req, res) => {
+    res.clearCookie('token')
+    res.status(200).json({
+        message: 'Sesión cerrada'
+    })
+})
 module.exports = {
     login,
     register,
-    data
+    data,
+    logout
 }
